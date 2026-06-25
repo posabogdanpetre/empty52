@@ -1,0 +1,95 @@
+// TODO: Replace MOCK_DATA with a real API call.
+// See the TODO block below the handler for endpoint details.
+const MOCK_DATA = [
+    {
+        name: 'Morning Muse Light Roast',
+        description: 'A light roast with bright, citrusy notes and a smooth finish.',
+        image_url: 'https://frescopa.coffee/media_1990fe27244fdc5d261155cd983f85a56415baf1c.jpg?width=750&format=jpg&optimize=medium',
+        category: 'Bagged Coffee'
+    },
+    {
+        name: 'Coffee Machines',
+        description: 'Top-of-the-line coffee machines for brewing at home.',
+        image_url: 'https://frescopa.coffee/media_18d90d06cb150321e2b7de19e82a9818c57b1eaaa.png?width=750&format=png&optimize=medium',
+        category: 'Coffee Machines'
+    },
+    {
+        name: 'Bagged Coffee',
+        description: 'Freshly roasted whole bean and ground coffee in bags.',
+        image_url: 'https://frescopa.coffee/media_11f2acc820929d908638cf3f7f133c5ac9792a560.png?width=750&format=png&optimize=medium',
+        category: 'Bagged Coffee'
+    },
+    {
+        name: 'Coffee Pods',
+        description: 'Single-serve coffee pods for quick, convenient brewing.',
+        image_url: 'https://frescopa.coffee/media_1611a15fc05b259399fa254f961f08b9f7804cd23.png?width=750&format=png&optimize=medium',
+        category: 'Coffee Pods'
+    },
+    {
+        name: 'Bundles',
+        description: 'Curated coffee and equipment bundles.',
+        image_url: 'https://frescopa.coffee/media_1b4036e97de71a31f998526cf47deb2999dbaee87.png?width=750&format=png&optimize=medium',
+        category: 'Bundles'
+    },
+    {
+        name: 'Accessories',
+        description: 'Brewing accessories and coffee gear.',
+        image_url: 'https://frescopa.coffee/media_1ad953e2b8b4f9e3e3f11e8fb8cedeca7a5ab2343.png?width=750&format=png&optimize=medium',
+        category: 'Accessories'
+    }
+]
+
+module.exports = async ({ name = '' }) => {
+    if (!name || typeof name !== 'string' || !name.trim()) {
+        return {
+            content: [{ type: 'text', text: 'Please provide a product name to retrieve details for.' }]
+        }
+    }
+
+    const query = name.trim().toLowerCase()
+    let item = MOCK_DATA.find((p) => p.name.toLowerCase() === query)
+    if (!item) {
+        item = MOCK_DATA.find((p) => p.name.toLowerCase().includes(query))
+    }
+
+    if (!item) {
+        // Not found — return content only (no structuredContent) so the widget shows its empty state.
+        return {
+            content: [{ type: 'text', text: `No product details found for: ${name.trim()}` }]
+        }
+    }
+
+    const summary = `${item.name} (${item.category}): ${item.description}`
+    return {
+        content: [{ type: 'text', text: summary }],
+        // structuredContent — flat single-object detail shape (widget reads sc directly, no wrapper key)
+        structuredContent: {
+            name: item.name,
+            description: item.description,
+            category: item.category,
+            image_url: item.image_url
+        }
+    }
+}
+
+/*
+ * TODO: Replace MOCK_DATA with a real API call.
+ *
+ * Suggested endpoint pattern (update based on actual site API):
+ *   GET ${process.env.API_BASE_URL}/products?name=${encodeURIComponent(name)}
+ *
+ * Environment variables to configure:
+ *   API_BASE_URL   Base URL of the website's API
+ *   API_KEY        API key if required (add to .env and app.config.yaml)
+ *
+ * Authentication: check the website's developer docs or network requests
+ *   captured during browsing for the correct auth header pattern.
+ *
+ * Example fetch:
+ *   const res = await fetch(
+ *     `${process.env.API_BASE_URL}/products?name=${encodeURIComponent(name)}`,
+ *     { headers: { 'Authorization': `Bearer ${process.env.API_KEY}` } }
+ *   )
+ *   if (!res.ok) throw new Error(`API error: ${res.status}`)
+ *   return await res.json()
+ */
